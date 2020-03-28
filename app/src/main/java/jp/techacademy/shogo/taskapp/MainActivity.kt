@@ -1,19 +1,20 @@
 package jp.techacademy.shogo.taskapp
 
+import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.widget.ListView
+import android.view.Menu
+import android.view.inputmethod.InputMethodManager
+import android.widget.SearchView
 import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 
 
 const val EXTRA_TASK = "jp.techacademy.shogo.taskapp.TASK"
@@ -116,16 +117,65 @@ class MainActivity : AppCompatActivity()  {
         mRealm.close()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.option_menu, menu)
 
-    private fun addTaskForTest(){
-        val task = Task()
-        task.title = "作業"
-        task.contents = "プログラムを書いてPUSHする"
-        task.date = Date()
-        task.id = 0
-        mRealm.beginTransaction()
-        mRealm.copyToRealmOrUpdate(task)
-        mRealm.commitTransaction()
+        //検索UI
+        if(menu != null) {
+            val searchItem = menu.findItem(R.id.search)
+            val searchView = searchItem.actionView as SearchView
 
+        searchView.setOnQueryTextListener(object :SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                //検索キーが押された場合
+                if (query != null && query !="" ) {
+                    val taskRealmResults =
+                        mRealm.where(Task::class.java).equalTo("category", query).findAll()
+                    //上記の結果を、TaskListとしてセットする
+                    mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+                    listView1.adapter = mTaskAdapter
+                    //表示を　更新するためにアダプターにデータが変更されたことを知らせる
+                    mTaskAdapter.notifyDataSetChanged()
+
+                }
+                //キーボードを閉じる
+                val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(searchView.windowToken, 0)
+                return true
+            }
+
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                //テキストが変更された場合
+                if (newText != null && newText !="" ) {
+                    val taskRealmResults =
+                        mRealm.where(Task::class.java).equalTo("category", newText).findAll()
+                    //上記の結果を、TaskListとしてセットする
+                    mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+                    listView1.adapter = mTaskAdapter
+                    //表示を　更新するためにアダプターにデータが変更されたことを知らせる
+                    mTaskAdapter.notifyDataSetChanged()
+                }else {
+                    reloadListView()
+                }
+                return true
+            }
+        })
+        }
+        return true
     }
+
+
+
+//    private fun addTaskForTest(){
+//        val task = Task()
+//        task.title = "作業"
+//        task.contents = "プログラムを書いてPUSHする"
+//        task.date = Date()
+//        task.id = 0
+//        mRealm.beginTransaction()
+//        mRealm.copyToRealmOrUpdate(task)
+//        mRealm.commitTransaction()
+//
+//    }
 }

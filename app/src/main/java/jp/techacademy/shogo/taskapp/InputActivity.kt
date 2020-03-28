@@ -49,6 +49,24 @@ class InputActivity : AppCompatActivity() {
         finish()
     }
 
+    private val mOnClearClickListener = View.OnClickListener{
+        title_edit_text.setText("")
+        content_edit_text.setText("")
+        category_edit_text.setText("")
+
+        val calendar = Calendar.getInstance()
+        mYear = calendar.get(Calendar.YEAR)
+        mMonth = calendar.get(Calendar.MONTH)
+        mDay = calendar.get(Calendar.DAY_OF_MONTH)
+        mHour= calendar.get(Calendar.HOUR_OF_DAY)
+        mMinute = calendar.get(Calendar.MINUTE)
+        val dateString = mYear.toString() + "/" + String.format("%02d",mMonth + 1) + "/" + String.format("%02d",mDay)
+        val timeString = String.format("%02d",mHour) + ":" + String.format("%02d",mMinute)
+
+        date_button.text = dateString
+        times_button.text = timeString
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +83,9 @@ class InputActivity : AppCompatActivity() {
         //UI部品の設定
         date_button.setOnClickListener(mOnDateClickListener)
         times_button.setOnClickListener(mOnTimeClickListener)
+        clear_button.setOnClickListener(mOnClearClickListener)
         done_button.setOnClickListener(mOnDoneClickListerner)
+
 
         //EXTRA_TASKからTaskのidを取得して、idからTaskのインスタンスを取得する
         val intent = intent
@@ -88,6 +108,7 @@ class InputActivity : AppCompatActivity() {
             //更新の場合
             title_edit_text.setText(mTask!!.title)
             content_edit_text.setText(mTask!!.contents)
+            category_edit_text.setText(mTask!!.category)
 
             val calendar = Calendar.getInstance()
             calendar.time = mTask!!.date
@@ -123,9 +144,11 @@ class InputActivity : AppCompatActivity() {
             mTask!!.id = identifier
         }
         val title = title_edit_text.text.toString()
+        val category = category_edit_text.text.toString()
         val content = content_edit_text.text.toString()
 
         mTask!!.title = title
+        mTask!!.category = category
         mTask!!.contents = content
         val calendar  = GregorianCalendar(mYear,mMonth,mDay,mHour,mMinute)
         val date = calendar.time

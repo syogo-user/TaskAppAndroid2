@@ -12,6 +12,7 @@ import java.util.*
 class TaskAdapter(context:Context):BaseAdapter() {
 
     private val mLayoutInflater:LayoutInflater
+
     var taskList = mutableListOf<Task>()
 
 
@@ -37,16 +38,19 @@ class TaskAdapter(context:Context):BaseAdapter() {
 
     //アイテム（データ）のviewを返す
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view : View = convertView ?: mLayoutInflater.inflate(android.R.layout.simple_list_item_2,null)
-        val textView1 = view.findViewById<TextView>(android.R.id.text1)
-        val textView2 = view.findViewById<TextView>(android.R.id.text2)
+        val view : View = convertView ?: mLayoutInflater.inflate(R.layout.list_layout,null)
+        val textView1 = view.findViewById<TextView>(R.id.textView1)
+        val textView2 = view.findViewById<TextView>(R.id.textView2)
+        val textView3 = view.findViewById<TextView>(R.id.textView3)
 
         //あとでTaskクラスから情報を取得するように変更する
         textView1.text = taskList[position].title
+        //カテゴリ
+        textView2.text = taskList[position].category
 
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.JAPANESE)
         val date = taskList[position].date
-        textView2.text = simpleDateFormat.format(date)
+        textView3.text = simpleDateFormat.format(date)
         return view
     }
 }

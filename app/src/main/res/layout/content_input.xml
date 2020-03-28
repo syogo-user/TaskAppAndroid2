@@ -19,10 +19,16 @@
         android:layout_height="wrap_content"
         android:hint="タイトル"/>
     <EditText
-        android:id="@+id/content_edit_text"
+        android:id="@+id/category_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_edit_text"
+        android:hint="カテゴリ"/>
+    <EditText
+        android:id="@+id/content_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/category_edit_text"
         android:hint="内容"/>
     <Button
         android:id="@+id/date_button"
@@ -41,7 +47,13 @@
         android:layout_alignParentRight="true"
         android:text="--:--"
         style="@style/Widget.AppCompat.Button.Borderless"/>
-
+    <Button
+        android:id="@+id/clear_button"
+        android:layout_width="96dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/times_button"
+        android:layout_toLeftOf="@+id/done_button"
+        android:text="クリア"/>
     <Button
         android:id="@+id/done_button"
         android:layout_width="96dp"
