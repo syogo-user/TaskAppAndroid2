@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="jp.techacademy.shogo.taskapp">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".TaskApp"
@@ -29,11 +29,19 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android:.support.PARENT_ACTIVITY"
-                android:value="jp.techacademy.shogo.taskapp.MainActivity"/>
+                android:value="jp.techacademy.shogo.taskapp.MainActivity" />
+        </activity>
+        <activity
+            android:name=".InputCategory"
+            android:label="カテゴリ作成"
+            android:parentActivityName=".InputActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="jp.techacademy.shogo.taskapp.InputActivity"/>
         </activity>
 
-        <receiver android:name=".TaskAlarmReceiver"/>
+        <receiver android:name=".TaskAlarmReceiver" />
     </application>
-
 
 </manifest>

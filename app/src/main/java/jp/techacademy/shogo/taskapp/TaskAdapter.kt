@@ -40,13 +40,13 @@ class TaskAdapter(context:Context):BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view : View = convertView ?: mLayoutInflater.inflate(R.layout.list_layout,null)
         val textView1 = view.findViewById<TextView>(R.id.textView1)
-        val textView2 = view.findViewById<TextView>(R.id.textView2)
+        //val textView2 = view.findViewById<TextView>(R.id.textView2)
         val textView3 = view.findViewById<TextView>(R.id.textView3)
 
         //あとでTaskクラスから情報を取得するように変更する
         textView1.text = taskList[position].title
         //カテゴリ
-        textView2.text = taskList[position].category
+        //textView2.text = taskList[position].category
 
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.JAPANESE)
         val date = taskList[position].date

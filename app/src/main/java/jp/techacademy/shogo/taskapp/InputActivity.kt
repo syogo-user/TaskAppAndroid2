@@ -9,8 +9,10 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.Toolbar
 import android.view.View
+import android.widget.ArrayAdapter
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_input.*
+import kotlinx.android.synthetic.main.activity_input_category.*
 import kotlinx.android.synthetic.main.content_input.*
 import java.util.*
 
@@ -21,6 +23,8 @@ class InputActivity : AppCompatActivity() {
     private var mHour = 0
     private var mMinute = 0
     private var mTask:Task? = null
+
+
 
     private val mOnDateClickListener = View.OnClickListener {
         val datePickerDialog = DatePickerDialog(this,
@@ -49,10 +53,15 @@ class InputActivity : AppCompatActivity() {
         finish()
     }
 
+    private val mOnSaveClickListenner = View.OnClickListener {
+        val intent = Intent(this@InputActivity,InputCategory::class.java)
+        startActivity(intent)
+    }
+
     private val mOnClearClickListener = View.OnClickListener{
         title_edit_text.setText("")
         content_edit_text.setText("")
-        category_edit_text.setText("")
+        //category_edit_text.setText("")
 
         val calendar = Calendar.getInstance()
         mYear = calendar.get(Calendar.YEAR)
@@ -85,14 +94,36 @@ class InputActivity : AppCompatActivity() {
         times_button.setOnClickListener(mOnTimeClickListener)
         clear_button.setOnClickListener(mOnClearClickListener)
         done_button.setOnClickListener(mOnDoneClickListerner)
-
+        transition_button.setOnClickListener(mOnSaveClickListenner)
 
         //EXTRA_TASKからTaskのidを取得して、idからTaskのインスタンスを取得する
         val intent = intent
         val taskId = intent.getIntExtra(EXTRA_TASK,-1)
-        val realm = Realm.getDefaultInstance()
+        var realm = Realm.getDefaultInstance()
         mTask = realm.where(Task::class.java).equalTo("id",taskId).findFirst()
         realm.close()
+
+
+
+        //カテゴリのSpinnerを設定
+        //Realからカテゴリを取得
+        realm = Realm.getDefaultInstance()
+        val mCategory = realm.where(Category::class.java).findAll()
+        realm.close()
+
+        //ArrayList に型変換
+        val sppinnerCategoryArray :Array<Category> = mCategory.toTypedArray()
+
+        var sppinnerItemArray : ArrayList<String>? = null
+        for (item in sppinnerCategoryArray) {
+            sppinnerItemArray?.add(item.categoryName)
+        }
+        val addapter = ArrayAdapter(
+            applicationContext,
+            android.R.layout.simple_spinner_item,
+            sppinnerItemArray
+            )
+
 
         //taskIdが-1の時（新規作成時）はmTaskはnullになる
         if(mTask == null){
@@ -108,7 +139,7 @@ class InputActivity : AppCompatActivity() {
             //更新の場合
             title_edit_text.setText(mTask!!.title)
             content_edit_text.setText(mTask!!.contents)
-            category_edit_text.setText(mTask!!.category)
+            //category_edit_text.setText(mTask!!.category.categoryName)
 
             val calendar = Calendar.getInstance()
             calendar.time = mTask!!.date
@@ -144,11 +175,11 @@ class InputActivity : AppCompatActivity() {
             mTask!!.id = identifier
         }
         val title = title_edit_text.text.toString()
-        val category = category_edit_text.text.toString()
+        //val category = category_edit_text.text.toString()
         val content = content_edit_text.text.toString()
 
         mTask!!.title = title
-        mTask!!.category = category
+        //mTask!!.category.categoryName = category
         mTask!!.contents = content
         val calendar  = GregorianCalendar(mYear,mMonth,mDay,mHour,mMinute)
         val date = calendar.time
