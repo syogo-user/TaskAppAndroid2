@@ -3,10 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+<!--    <item-->
+<!--        android:id="@+id/search"-->
+<!--        android:title=""-->
+<!--        android:icon="@drawable/baseline_search_black_24"-->
+<!--        app:actionViewClass="android.widget.SearchView"-->
+<!--        app:showAsAction="always|collapseActionView"/>-->
+
     <item
         android:id="@+id/search"
-        android:title=""
-        android:icon="@drawable/baseline_search_black_24"
-        app:actionViewClass="android.widget.SearchView"
+        android:title="検索"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:actionViewClass="android.widget.Spinner"
         app:showAsAction="always|collapseActionView"/>
 </menu>

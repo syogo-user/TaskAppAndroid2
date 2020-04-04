@@ -64,7 +64,7 @@ class InputActivity : AppCompatActivity() {
     private val mOnClearClickListener = View.OnClickListener{
         title_edit_text.setText("")
         content_edit_text.setText("")
-        //category_edit_text.setText("")
+
 
         val calendar = Calendar.getInstance()
         mYear = calendar.get(Calendar.YEAR)
@@ -124,7 +124,7 @@ class InputActivity : AppCompatActivity() {
             //更新の場合
             title_edit_text.setText(mTask!!.title)
             content_edit_text.setText(mTask!!.contents)
-            category_spinner_text.setSelection(mTask!!.category!!.categoryId)
+
 
             val calendar = Calendar.getInstance()
             calendar.time = mTask!!.date
@@ -152,10 +152,10 @@ class InputActivity : AppCompatActivity() {
 
 
         //ArrayList に型変換
-        val sppinnerCategoryArray :Array<Category> = realm.copyFromRealm(mCategory).toTypedArray()
+        val sppinnerCategoryArray: Array<Category> = realm.copyFromRealm(mCategory).toTypedArray()
         realm.close()
 
-        var sppinnerItemArray : ArrayList<String>? = arrayListOf()
+        var sppinnerItemArray: ArrayList<String>? = arrayListOf()
         for (item in sppinnerCategoryArray) {
             sppinnerItemArray?.add(item.categoryName)
         }
@@ -167,6 +167,16 @@ class InputActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         category_spinner_text.adapter = adapter
 
+
+        if (mTask == null) {
+            //新規の場合
+
+
+        }else {
+            //更新の場合
+            //カテゴリを設定
+            category_spinner_text.setSelection(mTask!!.category!!.categoryId)
+        }
         category_spinner_text.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -214,9 +224,6 @@ class InputActivity : AppCompatActivity() {
         val title = title_edit_text.text.toString()
 
         val content = content_edit_text.text.toString()
-
-
-
 
 
         mTask!!.title = title

@@ -3,18 +3,26 @@ package jp.techacademy.shogo.taskapp
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.SearchView
+import android.widget.Spinner
 import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_input.*
+import java.util.ArrayList
 
 
 const val EXTRA_TASK = "jp.techacademy.shogo.taskapp.TASK"
@@ -118,49 +126,94 @@ class MainActivity : AppCompatActivity()  {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.option_menu, menu)
+         menuInflater.inflate(R.menu.option_menu, menu)
 
         //検索UI
         if(menu != null) {
-            val searchItem = menu.findItem(R.id.search)
-            val searchView = searchItem.actionView as SearchView
+//            val searchItem = menu.findItem(R.id.search)
+//            val searchView = searchItem.actionView as SearchView
+            val serchItem =  menu.findItem(R.id.search) as MenuItem
+            val serchSpinner = serchItem.actionView as Spinner
+            //カテゴリのSpinnerを設定
+            //Realからカテゴリを取得
+            var realm = Realm.getDefaultInstance()
+            val mCategory = realm.where(Category::class.java).findAll()
+            //ArrayList に型変換
+            val sppinnerCategoryArray: Array<Category> = realm.copyFromRealm(mCategory).toTypedArray()
+            realm.close()
 
-        searchView.setOnQueryTextListener(object :SearchView.OnQueryTextListener{
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                //検索キーが押された場合
-                if (query != null && query !="" ) {
-                    val taskRealmResults =
-                        mRealm.where(Task::class.java).equalTo("category.categoryName", query).findAll()
+            var sppinnerItemArray: ArrayList<String>? = arrayListOf()
+            for (item in sppinnerCategoryArray) {
+                sppinnerItemArray?.add(item.categoryName)
+            }
+            val adapter = ArrayAdapter(
+                applicationContext,
+                android.R.layout.simple_spinner_item,
+                sppinnerItemArray
+            )
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            serchSpinner.adapter = adapter
+
+            serchSpinner.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener{
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val spinnerParent = parent as Spinner
+                    val item = spinnerParent.selectedItem as String
+
+                    val taskRealmResults = mRealm.where(Task::class.java).equalTo("category.categoryName", item).findAll()
                     //上記の結果を、TaskListとしてセットする
                     mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
                     listView1.adapter = mTaskAdapter
                     //表示を　更新するためにアダプターにデータが変更されたことを知らせる
                     mTaskAdapter.notifyDataSetChanged()
+                }
+                //アイテムが選択されなかった時
+                override fun onNothingSelected(parent: AdapterView<*>?) {
 
                 }
-                //キーボードを閉じる
-                val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(searchView.windowToken, 0)
-                return true
             }
 
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                //テキストが変更された場合
-                if (newText != null && newText !="" ) {
-                    val taskRealmResults =
-                        mRealm.where(Task::class.java).equalTo("category.categoryName", newText).findAll()
-                    //上記の結果を、TaskListとしてセットする
-                    mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
-                    listView1.adapter = mTaskAdapter
-                    //表示を　更新するためにアダプターにデータが変更されたことを知らせる
-                    mTaskAdapter.notifyDataSetChanged()
-                }else {
-                    reloadListView()
-                }
-                return true
-            }
-        })
+//        searchView.setOnQueryTextListener(object :SearchView.OnQueryTextListener{
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                //検索キーが押された場合
+//                if (query != null && query !="" ) {
+//                    val taskRealmResults =
+//                        mRealm.where(Task::class.java).equalTo("category.categoryName", query).findAll()
+//                    //上記の結果を、TaskListとしてセットする
+//                    mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+//                    listView1.adapter = mTaskAdapter
+//                    //表示を　更新するためにアダプターにデータが変更されたことを知らせる
+//                    mTaskAdapter.notifyDataSetChanged()
+//
+//                }
+//                //キーボードを閉じる
+//                val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+//                inputMethodManager.hideSoftInputFromWindow(searchView.windowToken, 0)
+//                return true
+//            }
+//
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                //テキストが変更された場合
+//                if (newText != null && newText !="" ) {
+//                    val taskRealmResults =
+//                        mRealm.where(Task::class.java).equalTo("category.categoryName", newText).findAll()
+//                    //上記の結果を、TaskListとしてセットする
+//                    mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+//                    listView1.adapter = mTaskAdapter
+//                    //表示を　更新するためにアダプターにデータが変更されたことを知らせる
+//                    mTaskAdapter.notifyDataSetChanged()
+//                }else {
+//                    reloadListView()
+//                }
+//                return true
+//            }
+//        })
         }
         return true
     }
