@@ -108,16 +108,54 @@ class InputActivity : AppCompatActivity() {
 
 
 
+
+
+        //taskIdが-1の時（新規作成時）はmTaskはnullになる
+        if(mTask == null){
+            //新規作成の場合　現在日時を設定
+            val calendar = Calendar.getInstance()
+            mYear = calendar.get(Calendar.YEAR)
+            mMonth = calendar.get(Calendar.MONTH)
+            mDay = calendar.get(Calendar.DAY_OF_MONTH)
+            mHour= calendar.get(Calendar.HOUR_OF_DAY)
+            mMinute = calendar.get(Calendar.MINUTE)
+
+        }else {
+            //更新の場合
+            title_edit_text.setText(mTask!!.title)
+            content_edit_text.setText(mTask!!.contents)
+            category_spinner_text.setSelection(mTask!!.category!!.categoryId)
+
+            val calendar = Calendar.getInstance()
+            calendar.time = mTask!!.date
+            mYear = calendar.get(Calendar.YEAR)
+            mMonth = calendar.get(Calendar.MONTH)
+            mDay = calendar.get(Calendar.DAY_OF_MONTH)
+            mHour = calendar.get(Calendar.HOUR_OF_DAY)
+            mMinute = calendar.get(Calendar.MINUTE)
+
+            val dateString = mYear.toString() + "/" + String.format("%02d",mMonth + 1) + "/" + String.format("%02d",mDay)
+            val timeString = String.format("%02d",mHour) + ":" + String.format("%02d",mMinute)
+
+            date_button.text = dateString
+            times_button.text = timeString
+        }
+    }
+
+
+    override fun onStart() {
+        super.onStart()
         //カテゴリのSpinnerを設定
         //Realからカテゴリを取得
-        realm = Realm.getDefaultInstance()
+        var realm = Realm.getDefaultInstance()
         val mCategory = realm.where(Category::class.java).findAll()
 
 
         //ArrayList に型変換
         val sppinnerCategoryArray :Array<Category> = realm.copyFromRealm(mCategory).toTypedArray()
         realm.close()
-        var sppinnerItemArray : ArrayList<String>? = arrayListOf("")
+
+        var sppinnerItemArray : ArrayList<String>? = arrayListOf()
         for (item in sppinnerCategoryArray) {
             sppinnerItemArray?.add(item.categoryName)
         }
@@ -137,47 +175,25 @@ class InputActivity : AppCompatActivity() {
                 id: Long
             ) {
                 val spinnerParent = parent as Spinner
-                val item = spinnerParent.selectedItem as Spinner
-                mCategoryItem = item.toString()
+                val item = spinnerParent.selectedItem as String
+                mCategoryItem = item
             }
             //アイテムが選択されなかった時
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
         }
-
-        //taskIdが-1の時（新規作成時）はmTaskはnullになる
-        if(mTask == null){
-            //新規作成の場合　現在日時を設定
-            val calendar = Calendar.getInstance()
-            mYear = calendar.get(Calendar.YEAR)
-            mMonth = calendar.get(Calendar.MONTH)
-            mDay = calendar.get(Calendar.DAY_OF_MONTH)
-            mHour= calendar.get(Calendar.HOUR_OF_DAY)
-            mMinute = calendar.get(Calendar.MINUTE)
-
-        }else {
-            //更新の場合
-            title_edit_text.setText(mTask!!.title)
-            content_edit_text.setText(mTask!!.contents)
-            //category_edit_text.setText(mTask!!.category.categoryName)
-
-            val calendar = Calendar.getInstance()
-            calendar.time = mTask!!.date
-            mYear = calendar.get(Calendar.YEAR)
-            mMonth = calendar.get(Calendar.MONTH)
-            mDay = calendar.get(Calendar.DAY_OF_MONTH)
-            mHour = calendar.get(Calendar.HOUR_OF_DAY)
-            mMinute = calendar.get(Calendar.MINUTE)
-
-            val dateString = mYear.toString() + "/" + String.format("%02d",mMonth + 1) + "/" + String.format("%02d",mDay)
-            val timeString = String.format("%02d",mHour) + ":" + String.format("%02d",mMinute)
-
-            date_button.text = dateString
-            times_button.text = timeString
-        }
     }
+
     private fun addTask(){
+
+        //mCategoryItemからcategoryIdを取得
+        val realmCategory = Realm.getDefaultInstance()
+        //val resultCategory = realmCategory.where(Category::class.java).equalTo("categoryName",mCategoryItem).findAll()
+        val resultCategory = realmCategory.where(Category::class.java).equalTo("categoryName",mCategoryItem).findFirst()
+        realmCategory.close()
+
+
         val realm = Realm.getDefaultInstance()
 
         realm.beginTransaction()
@@ -199,8 +215,14 @@ class InputActivity : AppCompatActivity() {
 
         val content = content_edit_text.text.toString()
 
+
+
+
+
         mTask!!.title = title
-        mTask!!.category.categoryName = mCategoryItem
+        //val categoryMutableList =  realmCategory.copyToRealm(resultCategory)
+        mTask!!.category!!.categoryId  = resultCategory!!.categoryId
+        mTask!!.category!!.categoryName = mCategoryItem
         mTask!!.contents = content
         val calendar  = GregorianCalendar(mYear,mMonth,mDay,mHour,mMinute)
         val date = calendar.time

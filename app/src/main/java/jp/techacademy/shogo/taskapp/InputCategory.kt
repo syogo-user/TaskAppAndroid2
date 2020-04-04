@@ -28,7 +28,7 @@ class InputCategory : AppCompatActivity() {
         val realm = Realm.getDefaultInstance()
         realm.beginTransaction()
 
-        //categoruIdの生成
+        //categoryIdの生成
         val taskRealmResult = realm.where(Category::class.java).findAll()
         val identifier : Int =
             if(taskRealmResult.max("categoryId") !=  null){
