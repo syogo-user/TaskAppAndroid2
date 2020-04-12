@@ -7,6 +7,7 @@ import android.app.TimePickerDialog
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.Adapter
@@ -52,8 +53,10 @@ class InputActivity : AppCompatActivity() {
     }
 
     private val mOnDoneClickListerner = View.OnClickListener {
-        addTask()
-        finish()
+        if(addTask()) {
+            //正常終了した場合は画面を閉じる
+            finish()
+        }
     }
 
     private val mOnSaveClickListenner = View.OnClickListener {
@@ -64,7 +67,7 @@ class InputActivity : AppCompatActivity() {
     private val mOnClearClickListener = View.OnClickListener{
         title_edit_text.setText("")
         content_edit_text.setText("")
-
+        category_spinner_text.setSelection(0)
 
         val calendar = Calendar.getInstance()
         mYear = calendar.get(Calendar.YEAR)
@@ -174,7 +177,7 @@ class InputActivity : AppCompatActivity() {
 
         }else {
             //更新の場合
-            //カテゴリを設定
+            //カテゴリ 表示
             category_spinner_text.setSelection(mTask!!.category!!.categoryId)
         }
         category_spinner_text.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener{
@@ -195,8 +198,18 @@ class InputActivity : AppCompatActivity() {
         }
     }
 
-    private fun addTask(){
+    private fun addTask():Boolean {
 
+        if (mCategoryItem == "") {
+            AlertDialog.Builder(this) // FragmentではActivityを取得して生成
+                .setTitle("")
+                .setMessage("カテゴリを選択してください")
+                .setPositiveButton("OK") { _, _ ->
+
+                }
+                .show()
+            return false
+        }
         //mCategoryItemからcategoryIdを取得
         val realmCategory = Realm.getDefaultInstance()
         //val resultCategory = realmCategory.where(Category::class.java).equalTo("categoryName",mCategoryItem).findAll()
@@ -228,8 +241,9 @@ class InputActivity : AppCompatActivity() {
 
         mTask!!.title = title
         //val categoryMutableList =  realmCategory.copyToRealm(resultCategory)
-        mTask!!.category!!.categoryId  = resultCategory!!.categoryId
-        mTask!!.category!!.categoryName = mCategoryItem
+        mTask!!.category = resultCategory
+        //!!.categoryId  = resultCategory!!.categoryId
+        //mTask!!.category!!.categoryName = mCategoryItem
         mTask!!.contents = content
         val calendar  = GregorianCalendar(mYear,mMonth,mDay,mHour,mMinute)
         val date = calendar.time
@@ -254,6 +268,7 @@ class InputActivity : AppCompatActivity() {
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.timeInMillis,resultPendingIntent)
 
+        return true
     }
 
 }

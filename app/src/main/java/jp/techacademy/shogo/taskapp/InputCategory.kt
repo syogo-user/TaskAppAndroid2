@@ -30,12 +30,23 @@ class InputCategory : AppCompatActivity() {
 
         //categoryIdの生成
         val taskRealmResult = realm.where(Category::class.java).findAll()
-        val identifier : Int =
+        var identifier : Int =
             if(taskRealmResult.max("categoryId") !=  null){
                 taskRealmResult.max("categoryId")!!.toInt() + 1
             }else {
                 0
             }
+        if(identifier == 0){
+            //Category生成
+            mCategory = Category()
+            //categoryIdの設定
+            mCategory!!.categoryId = identifier
+            //categoryNameの設定
+            mCategory!!.categoryName = ""
+
+            realm.copyToRealmOrUpdate(mCategory!!)
+            identifier = identifier + 1
+        }
         //Category生成
         mCategory = Category()
         //categoryIdの設定
